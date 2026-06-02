@@ -13,7 +13,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Status-Active-success?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Version-1.0-blue?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/License-MIT-purple?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/License-Apache%202.0-purple?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Built%20With-Express%20%7C%20Next.js%20%7C%20PostgreSQL-black?style=for-the-badge" />
 </p>
 
@@ -239,7 +239,7 @@ Tests cover:
 
 # 📜 License
 
-MIT License
+Apache License 2.0
 
 ---
 
