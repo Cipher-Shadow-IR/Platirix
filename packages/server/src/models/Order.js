@@ -1,5 +1,7 @@
 const { pool } = require("../config/db");
 
+const STATUS_FLOW = ["pending", "confirmed", "preparing", "out_for_delivery", "delivered"];
+
 const Order = {
   async findAll() {
     const { rows } = await pool.query(
@@ -30,7 +32,7 @@ const Order = {
     return order;
   },
 
-  async createFromCart() {
+  async createFromCart({ customerName, customerAddress, customerPhone } = {}) {
     const { rows: cartItems } = await pool.query(
       `SELECT ci.menu_item_id, ci.quantity, mi.name, mi.price
        FROM cart_items ci
@@ -54,8 +56,9 @@ const Order = {
       await client.query("BEGIN");
 
       const { rows: orderRows } = await client.query(
-        `INSERT INTO orders (total) VALUES ($1) RETURNING *`,
-        [total]
+        `INSERT INTO orders (total, customer_name, customer_address, customer_phone)
+         VALUES ($1, $2, $3, $4) RETURNING *`,
+        [total, customerName || null, customerAddress || null, customerPhone || null]
       );
       const order = orderRows[0];
 
@@ -98,6 +101,21 @@ const Order = {
     );
     order.items = items;
     return order;
+  },
+
+  async advanceNextStatus() {
+    const { rows } = await pool.query(
+      `SELECT * FROM orders WHERE status != 'delivered' AND status != 'cancelled'
+       ORDER BY created_at ASC LIMIT 1`
+    );
+    if (rows.length === 0) return null;
+
+    const order = rows[0];
+    const currentIdx = STATUS_FLOW.indexOf(order.status);
+    if (currentIdx === -1 || currentIdx >= STATUS_FLOW.length - 1) return null;
+
+    const nextStatus = STATUS_FLOW[currentIdx + 1];
+    return Order.updateStatus(order.id, nextStatus);
   },
 };
 

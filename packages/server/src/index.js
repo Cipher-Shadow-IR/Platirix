@@ -9,6 +9,7 @@ const menuRoutes = require("./routes/menu");
 const cartRoutes = require("./routes/cart");
 const orderRoutes = require("./routes/order");
 const { errorHandler } = require("./middleware/errorHandler");
+const { startStatusSimulator } = require("./statusSimulator");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -28,6 +29,7 @@ app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Platirix server listening on http://localhost:${PORT}`);
+  startStatusSimulator();
 });
 
 module.exports = app;

@@ -29,6 +29,9 @@ CREATE TABLE IF NOT EXISTS orders (
   status VARCHAR(50) NOT NULL DEFAULT 'pending'
     CHECK (status IN ('pending','confirmed','preparing','out_for_delivery','delivered','cancelled')),
   total DECIMAL(10,2) NOT NULL,
+  customer_name VARCHAR(255),
+  customer_address TEXT,
+  customer_phone VARCHAR(20),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -41,3 +44,16 @@ CREATE TABLE IF NOT EXISTS order_items (
   price DECIMAL(10,2) NOT NULL,
   quantity INTEGER NOT NULL CHECK (quantity > 0)
 );
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='orders' AND column_name='customer_name') THEN
+    ALTER TABLE orders ADD COLUMN customer_name VARCHAR(255);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='orders' AND column_name='customer_address') THEN
+    ALTER TABLE orders ADD COLUMN customer_address TEXT;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='orders' AND column_name='customer_phone') THEN
+    ALTER TABLE orders ADD COLUMN customer_phone VARCHAR(20);
+  END IF;
+END $$;

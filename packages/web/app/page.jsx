@@ -1,39 +1,59 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useToast } from "../components/Toast";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
 export default function HomePage() {
   const [items, setItems] = useState([]);
+  const [allItems, setAllItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [category, setCategory] = useState("");
+  const [quantities, setQuantities] = useState({});
+  const { addToast } = useToast();
 
   useEffect(() => {
-    fetch(`${API}/menu${category ? `?category=${category}` : ""}`)
+    fetch(`${API}/menu`)
       .then((r) => r.json())
       .then((data) => {
-        setItems(data.success ? data.data : []);
+        const menu = data.success ? data.data : [];
+        setAllItems(menu);
+        setItems(menu);
         setLoading(false);
       })
       .catch((err) => {
         setError(err.message);
         setLoading(false);
       });
-  }, [category]);
+  }, []);
 
-  async function addToCart(menuItemId) {
+  useEffect(() => {
+    if (!allItems.length) return;
+    if (!category) {
+      setItems(allItems);
+    } else {
+      setItems(allItems.filter((i) => i.category === category));
+    }
+  }, [category, allItems]);
+
+  async function addToCart(menuItemId, name) {
+    const qty = quantities[menuItemId] || 1;
     const res = await fetch(`${API}/cart`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ menuItemId, quantity: 1 }),
+      body: JSON.stringify({ menuItemId, quantity: qty }),
     });
-    if (res.ok) alert("Added to cart!");
-    else alert("Failed to add to cart");
+    if (res.ok) {
+      addToast(`${qty} × ${name} added to cart!`, "success");
+      setQuantities((prev) => ({ ...prev, [menuItemId]: 1 }));
+    } else {
+      addToast("Failed to add to cart", "error");
+    }
   }
 
-  const categories = [...new Set(items.map((i) => i.category))];
+  const categories = [...new Set(allItems.map((i) => i.category))].sort();
 
   if (loading) return <div className="text-center py-20 text-xl">Loading menu...</div>;
   if (error) return <div className="text-center py-20 text-red-600">Error: {error}</div>;
@@ -54,12 +74,38 @@ export default function HomePage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {items.map((item) => (
-          <div key={item.id} className="bg-white rounded-xl shadow-sm border p-5 flex flex-col">
-            <h3 className="text-lg font-semibold">{item.name}</h3>
-            <p className="text-sm text-gray-500 mt-1">{item.description}</p>
-            <p className="text-brand-600 font-bold text-xl mt-3">${Number(item.price).toFixed(2)}</p>
-            {item.category && <span className="text-xs bg-gray-100 self-start px-2 py-1 rounded mt-2">{item.category}</span>}
-            <button onClick={() => addToCart(item.id)} className="mt-4 w-full bg-brand-600 text-white py-2 rounded-lg hover:bg-brand-700 transition font-medium">Add to Cart</button>
+          <div key={item.id} className="bg-white rounded-xl shadow-sm border overflow-hidden flex flex-col">
+            {item.image_url && (
+              <img
+                src={item.image_url}
+                alt={item.name}
+                className="w-full h-48 object-cover"
+                loading="lazy"
+              />
+            )}
+            <div className="p-5 flex flex-col flex-1">
+              <h3 className="text-lg font-semibold">{item.name}</h3>
+              <p className="text-sm text-gray-500 mt-1 flex-1">{item.description}</p>
+              <p className="text-brand-600 font-bold text-xl mt-3">${Number(item.price).toFixed(2)}</p>
+              {item.category && <span className="text-xs bg-gray-100 self-start px-2 py-1 rounded mt-2">{item.category}</span>}
+              <div className="flex items-center gap-3 mt-4">
+                <div className="flex items-center border rounded-lg">
+                  <button
+                    onClick={() => setQuantities((prev) => ({ ...prev, [item.id]: Math.max(1, (prev[item.id] || 1) - 1) }))}
+                    className="w-9 h-9 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-l-lg font-bold"
+                  >−</button>
+                  <span className="w-10 text-center font-medium text-sm">{quantities[item.id] || 1}</span>
+                  <button
+                    onClick={() => setQuantities((prev) => ({ ...prev, [item.id]: (prev[item.id] || 1) + 1 }))}
+                    className="w-9 h-9 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-r-lg font-bold"
+                  >+</button>
+                </div>
+                <button
+                  onClick={() => addToCart(item.id, item.name)}
+                  className="flex-1 bg-brand-600 text-white py-2 rounded-lg hover:bg-brand-700 transition font-medium text-sm"
+                >Add to Cart</button>
+              </div>
+            </div>
           </div>
         ))}
       </div>
