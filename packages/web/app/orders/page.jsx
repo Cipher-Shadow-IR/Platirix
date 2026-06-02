@@ -15,12 +15,12 @@ const STATUS_LABELS = {
   cancelled: "Cancelled",
 };
 const STATUS_COLORS = {
-  pending: "bg-yellow-100 text-yellow-800",
-  confirmed: "bg-blue-100 text-blue-800",
-  preparing: "bg-indigo-100 text-indigo-800",
-  out_for_delivery: "bg-purple-100 text-purple-800",
-  delivered: "bg-green-100 text-green-800",
-  cancelled: "bg-red-100 text-red-800",
+  pending: "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400",
+  confirmed: "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400",
+  preparing: "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400",
+  out_for_delivery: "bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400",
+  delivered: "bg-brand-50 text-brand-700 dark:bg-brand-900/20 dark:text-brand-400",
+  cancelled: "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400",
 };
 
 export default function OrdersPage() {
@@ -53,52 +53,52 @@ export default function OrdersPage() {
     return idx >= 0 ? ((idx + 1) / STATUS_FLOW.length) * 100 : 0;
   }
 
-  if (loading) return <div className="text-center py-20 text-xl">Loading orders...</div>;
-  if (error) return <div className="text-center py-20 text-red-600">Error: {error}</div>;
+  if (loading) return <div className="text-center py-20 text-xl text-neutral-500 dark:text-neutral-400">Loading orders...</div>;
+  if (error) return <div className="text-center py-20 text-red-600 dark:text-red-400">Error: {error}</div>;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Your Orders</h1>
+    <div className="max-w-4xl mx-auto px-4 py-12">
+      <h1 className="text-4xl font-serif font-medium text-gray-900 dark:text-neutral-100 mb-8">Your Orders</h1>
 
       {orders.length === 0 && (
-        <div className="text-center py-16 text-gray-500">
-          <p className="text-xl mb-4">No orders yet</p>
-          <Link href="/" className="text-brand-600 hover:underline">Browse Menu</Link>
+        <div className="text-center py-16 text-neutral-400 dark:text-neutral-500">
+          <p className="text-xl font-light mb-4">No orders yet</p>
+          <Link href="/" className="text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 font-medium transition-colors">Browse Menu</Link>
         </div>
       )}
 
       <div className="space-y-4">
         {orders.map((order) => (
           <Link key={order.id} href={`/orders/${order.id}`}>
-            <div className="bg-white rounded-xl shadow-sm border p-5 hover:shadow-md transition cursor-pointer">
+            <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-sm dark:shadow-neutral-900/50 p-6 hover:shadow-xl dark:hover:shadow-neutral-800/50 hover:-translate-y-0.5 transition-all duration-300 ease-in-out cursor-pointer">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm text-gray-500 font-mono">#{order.id.slice(0, 8)}</span>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[order.status] || "bg-gray-100"}`}>
+                <span className="text-sm text-neutral-400 dark:text-neutral-500 font-mono">#{order.id.slice(0, 8)}</span>
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[order.status] || "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400"}`}>
                   {STATUS_LABELS[order.status] || order.status}
                 </span>
               </div>
 
               {order.status !== "cancelled" && (
-                <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
+                <div className="w-full bg-neutral-100 dark:bg-neutral-800 rounded-full h-1.5 mb-4">
                   <div
-                    className="bg-brand-500 h-2 rounded-full transition-all duration-500"
+                    className="bg-brand-600 dark:bg-brand-500 h-1.5 rounded-full transition-all duration-500"
                     style={{ width: `${progressPercent(order.status)}%` }}
                   />
                 </div>
               )}
 
-              <ul className="text-sm text-gray-700 space-y-1 mb-3">
+              <ul className="text-sm text-neutral-600 dark:text-neutral-400 font-light space-y-1 mb-3">
                 {order.items?.slice(0, 3).map((oi, idx) => (
                   <li key={idx}>{oi.name} × {oi.quantity}</li>
                 ))}
                 {order.items?.length > 3 && (
-                  <li className="text-gray-400">+{order.items.length - 3} more items</li>
+                  <li className="text-neutral-400 dark:text-neutral-500">+{order.items.length - 3} more items</li>
                 )}
               </ul>
 
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">{new Date(order.created_at).toLocaleString()}</span>
-                <span className="font-bold">${Number(order.total).toFixed(2)}</span>
+                <span className="text-neutral-400 dark:text-neutral-500 font-light">{new Date(order.created_at).toLocaleString()}</span>
+                <span className="font-medium text-gray-900 dark:text-neutral-100">${Number(order.total).toFixed(2)}</span>
               </div>
             </div>
           </Link>

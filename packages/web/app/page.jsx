@@ -55,59 +55,111 @@ export default function HomePage() {
 
   const categories = [...new Set(allItems.map((i) => i.category))].sort();
 
-  if (loading) return <div className="text-center py-20 text-xl">Loading menu...</div>;
-  if (error) return <div className="text-center py-20 text-red-600">Error: {error}</div>;
+  if (loading) return <div className="text-center py-20 text-xl text-neutral-500 dark:text-neutral-400">Loading menu...</div>;
+  if (error) return <div className="text-center py-20 text-red-600 dark:text-red-400">Error: {error}</div>;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-2">Our Menu</h1>
-      <p className="text-gray-600 mb-6">Freshly prepared, delivered to your door.</p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="mb-10">
+        <h1 className="text-5xl font-serif font-medium text-gray-900 dark:text-neutral-100 tracking-tight">Our Menu</h1>
+        <p className="text-neutral-500 dark:text-neutral-400 font-light text-lg mt-2 max-w-xl">
+          Freshly prepared, delivered to your door.
+        </p>
+      </div>
 
-      <div className="flex gap-2 mb-8 flex-wrap">
-        <button onClick={() => setCategory("")} className={`px-4 py-2 rounded-full text-sm font-medium transition ${!category ? "bg-brand-600 text-white" : "bg-gray-200 hover:bg-gray-300"}`}>All</button>
+      <div className="flex gap-2 mb-10 flex-wrap">
+        <button
+          onClick={() => setCategory("")}
+          className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+            !category
+              ? "bg-brand-600 text-white shadow-md"
+              : "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+          }`}
+        >
+          All
+        </button>
         {categories.map((c) => (
-          <button key={c} onClick={() => setCategory(c)} className={`px-4 py-2 rounded-full text-sm font-medium transition ${category === c ? "bg-brand-600 text-white" : "bg-gray-200 hover:bg-gray-300"}`}>{c}</button>
+          <button
+            key={c}
+            onClick={() => setCategory(c)}
+            className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+              category === c
+                ? "bg-brand-600 text-white shadow-md"
+                : "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+            }`}
+          >
+            {c}
+          </button>
         ))}
       </div>
 
-      {items.length === 0 && <p className="text-gray-500 text-center py-12">No items found.</p>}
+      {items.length === 0 && (
+        <p className="text-neutral-400 dark:text-neutral-500 text-center py-16 font-light">No items found.</p>
+      )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {items.map((item) => (
-          <div key={item.id} className="bg-white rounded-xl shadow-sm border overflow-hidden flex flex-col">
-            {item.image_url && (
-              <img
-                src={item.image_url}
-                alt={item.name}
-                className="w-full h-48 object-cover"
-                loading="lazy"
-              />
-            )}
-            <div className="p-5 flex flex-col flex-1">
-              <h3 className="text-lg font-semibold">{item.name}</h3>
-              <p className="text-sm text-gray-500 mt-1 flex-1">{item.description}</p>
-              <p className="text-brand-600 font-bold text-xl mt-3">${Number(item.price).toFixed(2)}</p>
-              {item.category && <span className="text-xs bg-gray-100 self-start px-2 py-1 rounded mt-2">{item.category}</span>}
-              <div className="flex items-center gap-3 mt-4">
-                <div className="flex items-center border rounded-lg">
-                  <button
-                    onClick={() => setQuantities((prev) => ({ ...prev, [item.id]: Math.max(1, (prev[item.id] || 1) - 1) }))}
-                    className="w-9 h-9 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-l-lg font-bold"
-                  >−</button>
-                  <span className="w-10 text-center font-medium text-sm">{quantities[item.id] || 1}</span>
-                  <button
-                    onClick={() => setQuantities((prev) => ({ ...prev, [item.id]: (prev[item.id] || 1) + 1 }))}
-                    className="w-9 h-9 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-r-lg font-bold"
-                  >+</button>
+            <div
+              key={item.id}
+              className="group flex flex-col h-full bg-white dark:bg-[#1a1a1a] rounded-2xl overflow-hidden shadow-sm hover:shadow-md dark:shadow-neutral-900/50 dark:hover:shadow-neutral-800/50 transition-all duration-300"
+            >
+              {item.image_url && (
+                <div className="relative w-full aspect-[16/11] overflow-hidden">
+                  <img
+                    src={item.image_url}
+                    alt={item.name}
+                    className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  {item.category && (
+                    <span className="absolute top-3 left-3 bg-white/90 dark:bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                      {item.category}
+                    </span>
+                  )}
                 </div>
-                <button
-                  onClick={() => addToCart(item.id, item.name)}
-                  className="flex-1 bg-brand-600 text-white py-2 rounded-lg hover:bg-brand-700 transition font-medium text-sm"
-                >Add to Cart</button>
+              )}
+              <div className="p-4 flex flex-col justify-between flex-1">
+                <div>
+                  <h3 className="text-base font-serif font-medium text-gray-900 dark:text-neutral-100">
+                    {item.name}
+                  </h3>
+                  <p className="line-clamp-2 text-sm text-neutral-500 dark:text-neutral-400 font-light mt-1">
+                    {item.description}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-base text-brand-600 dark:text-brand-400 font-medium mt-3">
+                    ${Number(item.price).toFixed(2)}
+                  </p>
+                  <div className="flex items-center mt-3 bg-neutral-100 dark:bg-neutral-800 rounded-xl overflow-hidden">
+                  <div className="flex items-center">
+                    <button
+                      onClick={() => setQuantities((prev) => ({ ...prev, [item.id]: Math.max(1, (prev[item.id] || 1) - 1) }))}
+                      className="w-9 h-9 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-white/50 dark:hover:bg-black/20 transition-colors duration-200 font-medium"
+                    >
+                      −
+                    </button>
+                    <span className="w-8 text-center font-medium text-sm text-gray-900 dark:text-neutral-100">
+                      {quantities[item.id] || 1}
+                    </span>
+                    <button
+                      onClick={() => setQuantities((prev) => ({ ...prev, [item.id]: (prev[item.id] || 1) + 1 }))}
+                      className="w-9 h-9 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-white/50 dark:hover:bg-black/20 transition-colors duration-200 font-medium"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => addToCart(item.id, item.name)}
+                    className="flex-1 h-9 bg-brand-600 dark:bg-brand-500 text-white text-xs font-medium hover:bg-brand-700 dark:hover:bg-brand-400 transition-colors duration-300"
+                  >
+                    Add to Cart
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        ))}
+          ))}
       </div>
     </div>
   );

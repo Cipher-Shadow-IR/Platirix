@@ -95,29 +95,29 @@ export default function OrderDetailPage() {
     return () => clearInterval(interval);
   }, [id]);
 
-  if (loading) return <div className="text-center py-20 text-xl">Loading order...</div>;
-  if (error) return <div className="text-center py-20 text-red-600">{error}</div>;
-  if (!order) return <div className="text-center py-20 text-gray-500">Order not found</div>;
+  if (loading) return <div className="text-center py-20 text-xl text-neutral-500 dark:text-neutral-400">Loading order...</div>;
+  if (error) return <div className="text-center py-20 text-red-600 dark:text-red-400">{error}</div>;
+  if (!order) return <div className="text-center py-20 text-neutral-400 dark:text-neutral-500 font-light">Order not found</div>;
 
   const currentIdx = STATUS_FLOW.indexOf(order.status);
   const isCancelled = order.status === "cancelled";
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <Link href="/orders" className="text-brand-600 hover:underline text-sm mb-4 inline-block">&larr; Back to Orders</Link>
+    <div className="max-w-3xl mx-auto px-4 py-12">
+      <Link href="/orders" className="text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 font-medium text-sm transition-colors inline-block mb-6">&larr; Back to Orders</Link>
 
-      <div className="bg-white rounded-xl shadow-sm border p-6 mb-6">
+      <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-sm dark:shadow-neutral-900/50 p-7 mb-6 transition-colors duration-300">
         <div className="flex items-center justify-between mb-2">
-          <h1 className="text-2xl font-bold font-mono">#{order.id.slice(0, 8)}</h1>
-          <span className={`text-brand-600`}><StatusIcon status={order.status} className="w-9 h-9" /></span>
+          <h1 className="text-2xl font-serif font-medium text-gray-900 dark:text-neutral-100 font-mono">#{order.id.slice(0, 8)}</h1>
+          <span className="text-brand-600 dark:text-brand-400"><StatusIcon status={order.status} className="w-9 h-9" /></span>
         </div>
-        <p className="text-sm text-gray-500 mb-4">{new Date(order.created_at).toLocaleString()}</p>
+        <p className="text-sm text-neutral-400 dark:text-neutral-500 font-light mb-5">{new Date(order.created_at).toLocaleString()}</p>
 
-        <div className={`p-4 rounded-lg mb-6 ${isCancelled ? "bg-red-50" : "bg-brand-50"}`}>
-          <p className={`font-semibold ${isCancelled ? "text-red-700" : "text-brand-700"}`}>
+        <div className={`p-5 rounded-xl mb-6 ${isCancelled ? "bg-red-50 dark:bg-red-900/20" : "bg-brand-50 dark:bg-brand-900/20"}`}>
+          <p className={`font-serif font-medium ${isCancelled ? "text-red-700 dark:text-red-400" : "text-brand-700 dark:text-brand-300"}`}>
             {STATUS_LABELS[order.status] || order.status}
           </p>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 font-light mt-1">
             {STATUS_DESCRIPTIONS[order.status] || ""}
           </p>
         </div>
@@ -132,15 +132,15 @@ export default function OrderDetailPage() {
                   <div key={s} className="flex items-start mb-0">
                     <div className="flex flex-col items-center mr-4">
                       <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                        isActive ? "bg-brand-600 text-white" : "bg-gray-200 text-gray-400"
+                        isActive ? "bg-brand-600 dark:bg-brand-500 text-white" : "bg-neutral-200 dark:bg-neutral-700 text-neutral-400 dark:text-neutral-500"
                       }`}>
                         {i + 1}
                       </div>
                       {!isLast && (
-                        <div className={`w-0.5 h-10 ${isActive && i < currentIdx ? "bg-brand-600" : "bg-gray-200"}`} />
+                        <div className={`w-0.5 h-10 ${isActive && i < currentIdx ? "bg-brand-600 dark:bg-brand-500" : "bg-neutral-200 dark:bg-neutral-700"}`} />
                       )}
                     </div>
-                    <div className={`pb-8 ${isActive ? "text-gray-900" : "text-gray-400"}`}>
+                    <div className={`pb-8 ${isActive ? "text-gray-900 dark:text-neutral-100" : "text-neutral-400 dark:text-neutral-500"}`}>
                       <p className="font-medium text-sm">{STATUS_LABELS[s]}</p>
                     </div>
                   </div>
@@ -150,29 +150,29 @@ export default function OrderDetailPage() {
           </div>
         )}
 
-        <h2 className="font-semibold text-lg mb-3">Items</h2>
+        <h2 className="font-serif font-medium text-lg text-gray-900 dark:text-neutral-100 mb-4">Items</h2>
         <div className="space-y-2 mb-6">
           {order.items?.map((oi, idx) => (
             <div key={idx} className="flex justify-between text-sm">
-              <span>{oi.name} <span className="text-gray-400">×{oi.quantity}</span></span>
-              <span className="font-medium">${(Number(oi.price) * oi.quantity).toFixed(2)}</span>
+              <span className="text-gray-900 dark:text-neutral-100">{oi.name} <span className="text-neutral-400 dark:text-neutral-500 font-light">×{oi.quantity}</span></span>
+              <span className="font-medium text-gray-900 dark:text-neutral-100">${(Number(oi.price) * oi.quantity).toFixed(2)}</span>
             </div>
           ))}
         </div>
 
-        <div className="border-t pt-4 flex justify-between text-lg font-bold">
+        <div className="border-t border-neutral-200/50 dark:border-neutral-800/50 pt-5 flex justify-between text-lg font-medium text-gray-900 dark:text-neutral-100">
           <span>Total</span>
-          <span>${Number(order.total).toFixed(2)}</span>
+          <span className="font-serif">${Number(order.total).toFixed(2)}</span>
         </div>
       </div>
 
       {order.customer_name && (
-        <div className="bg-white rounded-xl shadow-sm border p-6">
-          <h2 className="font-semibold text-lg mb-3">Delivery Details</h2>
-          <div className="space-y-2 text-sm">
-            <p><span className="font-medium text-gray-600">Name:</span> {order.customer_name}</p>
-            <p><span className="font-medium text-gray-600">Address:</span> {order.customer_address}</p>
-            <p><span className="font-medium text-gray-600">Phone:</span> {order.customer_phone}</p>
+        <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-sm dark:shadow-neutral-900/50 p-7 transition-colors duration-300">
+          <h2 className="font-serif font-medium text-lg text-gray-900 dark:text-neutral-100 mb-4">Delivery Details</h2>
+          <div className="space-y-2 text-sm text-neutral-600 dark:text-neutral-400 font-light">
+            <p><span className="font-medium text-gray-900 dark:text-neutral-100">Name:</span> {order.customer_name}</p>
+            <p><span className="font-medium text-gray-900 dark:text-neutral-100">Address:</span> {order.customer_address}</p>
+            <p><span className="font-medium text-gray-900 dark:text-neutral-100">Phone:</span> {order.customer_phone}</p>
           </div>
         </div>
       )}
