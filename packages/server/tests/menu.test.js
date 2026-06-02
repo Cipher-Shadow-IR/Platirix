@@ -1,6 +1,10 @@
 const request = require("supertest");
 const app = require("../src/index");
 const { pool } = require("../src/config/db");
+const { setupDB, teardownDB } = require("./setup");
+
+beforeAll(async () => { await setupDB(); });
+afterAll(async () => { await teardownDB(); });
 
 describe("Menu API", () => {
   let categoryId;

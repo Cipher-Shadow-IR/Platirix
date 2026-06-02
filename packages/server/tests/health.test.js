@@ -1,5 +1,9 @@
 const request = require("supertest");
 const app = require("../src/index");
+const { setupDB, teardownDB } = require("./setup");
+
+beforeAll(async () => { await setupDB(); });
+afterAll(async () => { await teardownDB(); });
 
 describe("GET /api/health", () => {
   it("returns ok", async () => {

@@ -16,6 +16,12 @@ const cartController = {
       const item = await Cart.addOrUpdate(menuItemId, quantity);
       res.status(201).json({ success: true, data: item });
     } catch (err) {
+      if (err.code === '23503') {
+        const error = new Error("Menu item not found");
+        error.status = 400;
+        error.expose = true;
+        return next(error);
+      }
       next(err);
     }
   },

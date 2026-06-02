@@ -1,6 +1,10 @@
 const request = require("supertest");
 const app = require("../src/index");
 const { pool } = require("../src/config/db");
+const { setupDB, teardownDB } = require("./setup");
+
+beforeAll(async () => { await setupDB(); });
+afterAll(async () => { await teardownDB(); });
 
 describe("Order API", () => {
   let menuItemId;
@@ -34,17 +38,29 @@ describe("Order API", () => {
   });
 
   describe("POST /api/orders", () => {
-    it("creates order from cart", async () => {
+    it("creates order from cart with delivery details", async () => {
       await request(app).post("/api/cart").send({ menuItemId, quantity: 2 });
-      const res = await request(app).post("/api/orders");
+      const res = await request(app)
+        .post("/api/orders")
+        .send({ customerName: "Test User", customerAddress: "123 Test St", customerPhone: "555-0000" });
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
       expect(res.body.data.status).toBe("pending");
+      expect(res.body.data.customer_name).toBe("Test User");
       expect(Number(res.body.data.total)).toBe(15.98);
     });
 
     it("rejects empty cart", async () => {
-      const res = await request(app).post("/api/orders");
+      const res = await request(app)
+        .post("/api/orders")
+        .send({ customerName: "Test", customerAddress: "Addr", customerPhone: "555" });
+      expect(res.status).toBe(400);
+    });
+
+    it("rejects missing delivery fields", async () => {
+      const res = await request(app)
+        .post("/api/orders")
+        .send({});
       expect(res.status).toBe(400);
     });
   });
@@ -52,7 +68,7 @@ describe("Order API", () => {
   describe("GET /api/orders", () => {
     it("lists orders", async () => {
       await request(app).post("/api/cart").send({ menuItemId, quantity: 1 });
-      await request(app).post("/api/orders");
+      await request(app).post("/api/orders").send({ customerName: "Test", customerAddress: "Addr", customerPhone: "555" });
       const res = await request(app).get("/api/orders");
       expect(res.status).toBe(200);
       expect(res.body.data.length).toBe(1);
@@ -62,7 +78,7 @@ describe("Order API", () => {
   describe("PATCH /api/orders/:id/status", () => {
     it("updates order status", async () => {
       await request(app).post("/api/cart").send({ menuItemId, quantity: 1 });
-      const created = await request(app).post("/api/orders");
+      const created = await request(app).post("/api/orders").send({ customerName: "Test", customerAddress: "Addr", customerPhone: "555" });
       const orderId = created.body.data.id;
 
       const res = await request(app)
@@ -74,7 +90,7 @@ describe("Order API", () => {
 
     it("rejects invalid status", async () => {
       await request(app).post("/api/cart").send({ menuItemId, quantity: 1 });
-      const created = await request(app).post("/api/orders");
+      const created = await request(app).post("/api/orders").send({ customerName: "Test", customerAddress: "Addr", customerPhone: "555" });
       const orderId = created.body.data.id;
 
       const res = await request(app)

@@ -27,9 +27,11 @@ app.use("/api/orders", orderRoutes);
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Platirix server listening on http://localhost:${PORT}`);
-  startStatusSimulator();
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Platirix server listening on http://localhost:${PORT}`);
+    startStatusSimulator();
+  });
+}
 
 module.exports = app;

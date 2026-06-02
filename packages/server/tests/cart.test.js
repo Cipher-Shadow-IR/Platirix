@@ -1,6 +1,10 @@
 const request = require("supertest");
 const app = require("../src/index");
 const { pool } = require("../src/config/db");
+const { setupDB, teardownDB } = require("./setup");
+
+beforeAll(async () => { await setupDB(); });
+afterAll(async () => { await teardownDB(); });
 
 describe("Cart API", () => {
   let menuItemId;
@@ -42,7 +46,7 @@ describe("Cart API", () => {
       const res = await request(app)
         .post("/api/cart")
         .send({ menuItemId: 99999, quantity: 1 });
-      expect(res.status).toBe(500);
+      expect(res.status).toBe(400);
     });
   });
 
