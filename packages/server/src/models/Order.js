@@ -56,8 +56,8 @@ const Order = {
       await client.query("BEGIN");
 
       const { rows: orderRows } = await client.query(
-        `INSERT INTO orders (total, customer_name, customer_address, customer_phone)
-         VALUES ($1, $2, $3, $4) RETURNING *`,
+        `INSERT INTO orders (total, customer_name, customer_address, customer_phone, estimated_delivery_time)
+         VALUES ($1, $2, $3, $4, NOW() + INTERVAL '25 minutes') RETURNING *`,
         [total, customerName || null, customerAddress || null, customerPhone || null]
       );
       const order = orderRows[0];
@@ -89,9 +89,17 @@ const Order = {
   },
 
   async updateStatus(id, status) {
+    const sets = ["status = $1", "updated_at = NOW()"];
+    const params = [status, id];
+    let paramIdx = 3;
+
+    if (status === "delivered") {
+      sets.push(`delivered_at = NOW()`);
+    }
+
     const { rows } = await pool.query(
-      `UPDATE orders SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING *`,
-      [status, id]
+      `UPDATE orders SET ${sets.join(", ")} WHERE id = $2 RETURNING *`,
+      [...params]
     );
     if (rows.length === 0) return null;
     const order = rows[0];
@@ -106,16 +114,19 @@ const Order = {
   async advanceNextStatus() {
     const { rows } = await pool.query(
       `SELECT * FROM orders WHERE status != 'delivered' AND status != 'cancelled'
-       ORDER BY created_at ASC LIMIT 1`
+       ORDER BY created_at ASC`
     );
     if (rows.length === 0) return null;
 
-    const order = rows[0];
-    const currentIdx = STATUS_FLOW.indexOf(order.status);
-    if (currentIdx === -1 || currentIdx >= STATUS_FLOW.length - 1) return null;
-
-    const nextStatus = STATUS_FLOW[currentIdx + 1];
-    return Order.updateStatus(order.id, nextStatus);
+    const advanced = [];
+    for (const order of rows) {
+      const currentIdx = STATUS_FLOW.indexOf(order.status);
+      if (currentIdx === -1 || currentIdx >= STATUS_FLOW.length - 1) continue;
+      const nextStatus = STATUS_FLOW[currentIdx + 1];
+      const updated = await Order.updateStatus(order.id, nextStatus);
+      if (updated) advanced.push(updated);
+    }
+    return advanced.length > 0 ? advanced[advanced.length - 1] : null;
   },
 };
 

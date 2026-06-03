@@ -111,7 +111,13 @@ export default function OrderDetailPage() {
           <h1 className="text-2xl font-serif font-medium text-gray-900 dark:text-neutral-100 font-mono">#{order.id.slice(0, 8)}</h1>
           <span className="text-brand-600 dark:text-brand-400"><StatusIcon status={order.status} className="w-9 h-9" /></span>
         </div>
-        <p className="text-sm text-neutral-400 dark:text-neutral-500 font-light mb-5">{new Date(order.created_at).toLocaleString()}</p>
+        <p className="text-sm text-neutral-400 dark:text-neutral-500 font-light mb-2">{new Date(order.created_at).toLocaleString()}</p>
+        {order.updated_at && order.updated_at !== order.created_at && (
+          <p className="text-xs text-neutral-400 dark:text-neutral-500 font-light mb-5">
+            Last updated: {new Date(order.updated_at).toLocaleString()}
+          </p>
+        )}
+        {!order.updated_at || order.updated_at === order.created_at ? <div className="mb-5" /> : null}
 
         <div className={`p-5 rounded-xl mb-6 ${isCancelled ? "bg-red-50 dark:bg-red-900/20" : "bg-brand-50 dark:bg-brand-900/20"}`}>
           <p className={`font-serif font-medium ${isCancelled ? "text-red-700 dark:text-red-400" : "text-brand-700 dark:text-brand-300"}`}>
@@ -120,6 +126,16 @@ export default function OrderDetailPage() {
           <p className="text-sm text-neutral-500 dark:text-neutral-400 font-light mt-1">
             {STATUS_DESCRIPTIONS[order.status] || ""}
           </p>
+          {order.estimated_delivery_time && !isCancelled && order.status !== "delivered" && (
+            <p className="text-sm text-brand-600 dark:text-brand-400 font-medium mt-2">
+              Estimated delivery: {new Date(order.estimated_delivery_time).toLocaleString()}
+            </p>
+          )}
+          {order.delivered_at && (
+            <p className="text-sm text-green-600 dark:text-green-400 font-medium mt-2">
+              Delivered at: {new Date(order.delivered_at).toLocaleString()}
+            </p>
+          )}
         </div>
 
         {!isCancelled && (

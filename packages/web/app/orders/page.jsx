@@ -100,6 +100,11 @@ export default function OrdersPage() {
                 <span className="text-neutral-400 dark:text-neutral-500 font-light">{new Date(order.created_at).toLocaleString()}</span>
                 <span className="font-medium text-gray-900 dark:text-neutral-100">${Number(order.total).toFixed(2)}</span>
               </div>
+              {order.estimated_delivery_time && order.status !== "delivered" && order.status !== "cancelled" && (
+                <p className="text-xs text-brand-600 dark:text-brand-400 mt-1">
+                  ETA: {new Date(order.estimated_delivery_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </p>
+              )}
             </div>
           </Link>
         ))}

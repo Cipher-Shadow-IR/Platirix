@@ -32,6 +32,8 @@ CREATE TABLE IF NOT EXISTS orders (
   customer_name VARCHAR(255),
   customer_address TEXT,
   customer_phone VARCHAR(20),
+  estimated_delivery_time TIMESTAMPTZ,
+  delivered_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -55,5 +57,11 @@ BEGIN
   END IF;
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='orders' AND column_name='customer_phone') THEN
     ALTER TABLE orders ADD COLUMN customer_phone VARCHAR(20);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='orders' AND column_name='estimated_delivery_time') THEN
+    ALTER TABLE orders ADD COLUMN estimated_delivery_time TIMESTAMPTZ;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='orders' AND column_name='delivered_at') THEN
+    ALTER TABLE orders ADD COLUMN delivered_at TIMESTAMPTZ;
   END IF;
 END $$;

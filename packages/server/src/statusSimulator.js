@@ -25,4 +25,8 @@ function stopStatusSimulator() {
   }
 }
 
-module.exports = { startStatusSimulator, stopStatusSimulator };
+function isSimulatorRunning() {
+  return intervalId !== null;
+}
+
+module.exports = { startStatusSimulator, stopStatusSimulator, isSimulatorRunning };
